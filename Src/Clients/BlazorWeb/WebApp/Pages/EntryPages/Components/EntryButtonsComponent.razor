@@ -1,0 +1,114 @@
+﻿<div>
+    <span>
+        <a class="p-1" @onclick="@OpenUpdateModal">
+            <Tooltip Text="Update!"><span class="pointer fa fa-edit"></span></Tooltip>
+        </a>
+    </span>
+    <span>
+        <a class="p-1" @onclick="@OpenTagModal">
+            <Tooltip Text="Add Tag!"><span class="pointer fa fa-tag"></span></Tooltip>
+        </a>
+    </span>
+    <span>
+        <a class="p-1" @onclick="@OpenDeleteModal">
+            <Tooltip Text="Delete!"> <span class="pointer fa fa-close"></span></Tooltip>
+        </a>
+    </span>
+
+</div>
+
+@if(UpdateModalOpen)
+{
+    <UpdateEntryComponent OnClose="@CloseUpdateModal" EntryId="@EntryId" EntrySubject="@EntrySubject" EntryContent="@EntryContent" OnUpdateClicked="@UpdateClicked" />
+}
+
+@if(TagModalOpen)
+{
+    <AddTagEntryComponent OnClose="@CloseTagModal" EntryId="@EntryId" OnAddTagClicked="@AddTagClicked" />
+}
+
+@if(DeleteModalOpen)
+{
+    <DeleteEntryComponent OnClose="@CloseDeleteModal" EntryId="@EntryId" EntrySubject="@EntrySubject" EntryContent="@EntryContent" OnDeleteClicked="@DeleteClicked" />
+}
+
+@code {
+    [Parameter]
+    public Guid EntryId { get; set; }
+
+    [Parameter]
+    public string EntrySubject { get; set; }
+
+    [Parameter]
+    public string EntryContent { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryClickedEventArgs> OnUpdateClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryTagClickedEventArgs> OnAddTagClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryClickedEventArgs> OnDeleteClicked { get; set; }
+
+    private bool UpdateModalOpen { get; set; }
+    private bool TagModalOpen { get; set; }
+    private bool DeleteModalOpen { get; set; }
+
+    private void CloseUpdateModal()
+    {
+        UpdateModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void CloseTagModal()
+    {
+        TagModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void CloseDeleteModal()
+    {
+        DeleteModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenUpdateModal()
+    {
+        UpdateModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void OpenTagModal()
+    {
+        TagModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteModal()
+    {
+        DeleteModalOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task UpdateClicked(EntryClickedEventArgs eventArgs)
+    {
+        await OnUpdateClicked.InvokeAsync(eventArgs);
+
+        StateHasChanged();
+    }
+
+    private async Task AddTagClicked(EntryTagClickedEventArgs eventArgs)
+    {
+        await OnAddTagClicked.InvokeAsync(eventArgs);
+
+        StateHasChanged();
+    }
+
+    private async Task DeleteClicked(EntryClickedEventArgs eventArgs)
+    {
+        await OnDeleteClicked.InvokeAsync(eventArgs);
+
+        StateHasChanged();
+    }
+}

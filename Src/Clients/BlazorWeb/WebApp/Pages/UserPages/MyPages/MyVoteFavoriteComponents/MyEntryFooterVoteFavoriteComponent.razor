@@ -1,0 +1,31 @@
+﻿<div>
+    <Tooltip Text="Upvote Count">
+        <span>
+            <a class="p-1">
+                <span class="oi oi-arrow-top text-success"></span>
+                <span class="text-success">@UpVoteCount</span>
+            </a>
+        </span>
+    </Tooltip>
+    <Tooltip Text="Downvote Count">
+        <span>
+            <a class="p-3">
+                <span class="oi oi-arrow-bottom text-danger"></span>
+                <span class="text-danger">@DownVoteCount</span>
+            </a>
+        </span>
+    </Tooltip>
+
+    <MyEntryFooterFavoriteComponent FavoritedCount="@FavoritedCount" />
+</div>
+
+@code {
+    [Parameter]
+    public int UpVoteCount { get; set; }
+
+    [Parameter]
+    public int DownVoteCount { get; set; }
+
+    [Parameter]
+    public int FavoritedCount { get; set; }
+}

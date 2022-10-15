@@ -1,0 +1,42 @@
+﻿@page "/myFavoriteEntries";
+
+@if(entries != null && entries.Results.Count > 0)
+{
+    foreach(var entry in entries.Results)
+    {
+        <EntryViewerComponent Entry="@entry" />
+        <hr class="hrStyle" />
+    }
+    <br />
+    <br />
+
+    <PaginationComponent TotalPage="@entries.PageInfo.TotalPageCount"
+                     CurrentPage="@currentPage"
+                     OnPageChanged="@OnPageChanged" />
+}
+
+@code {
+    [Inject]
+    IEntryService entryService { get; set; }
+
+    [Parameter]
+    public Guid TagId { get; set; }
+
+    private int currentPage = 1;
+    private int pageSize = 5;
+
+    PagedViewModel<GetEntryDetailViewModel> entries;
+
+    public async Task OnPageChanged(int pageNumber)
+    {
+        currentPage = pageNumber;
+
+        entries = await entryService.GetMyFavoriteEntries(currentPage, pageSize);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        entries = await entryService.GetMyFavoriteEntries(currentPage, pageSize);
+    }
+}
+

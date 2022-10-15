@@ -1,0 +1,72 @@
+﻿@{
+    foreach(var entry in entries.Results)
+    {
+        <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 @(SelectedEntryId == @entry.Id ? "active" : "")" @onclick="(() => Clicked(entry.Id))">
+            <a href="/entry/@entry.Id">@entry.Subject</a>
+            <span style="margin-left:5px;"><small class="text-white">@entry.CommentCount</small></span>
+        </li>
+    }
+
+    <PaginationComponent TotalPage="@entries.PageInfo.TotalPageCount"
+                     CurrentPage="@currentPage"
+                     OnPageChanged="@OnPageChanged" />
+}
+
+@code {
+    [Inject]
+    IEntryService entryService { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    private Guid SelectedEntryId { get; set; }
+
+    [Parameter]
+    public Guid TagId { get; set; }
+
+    PagedViewModel<GetEntriesViewModel> entries = new();
+
+    private int currentPage = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SelectedEntry();
+
+        await RefreshList(currentPage);
+    }
+
+    public async Task RefreshList(int pageNumber)
+    {
+        if(TagId != Guid.Empty)
+            entries = await entryService.GetEntries(TagId, pageNumber, 10);
+        else
+            entries = await entryService.GetEntries(pageNumber, 10);
+
+        SelectedEntryId = Guid.Empty;
+
+        SelectedEntry();
+
+        StateHasChanged();
+    }
+
+    public async Task OnPageChanged(int pageNumber)
+    {
+        currentPage = pageNumber;
+        await RefreshList(currentPage);
+    }
+
+    void Clicked(Guid id)
+    {
+        SelectedEntryId = id;
+
+        StateHasChanged();
+    }
+
+    void SelectedEntry()
+    {
+        var uri = navigationManager.ToBaseRelativePath(navigationManager.Uri);
+        var entryId = uri.Split('/').Last();
+
+        SelectedEntryId = Guid.TryParse(entryId, out Guid entryIdGuid) ? entryIdGuid : Guid.Empty;
+    }
+}

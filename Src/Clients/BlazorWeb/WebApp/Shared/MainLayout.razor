@@ -1,0 +1,285 @@
+﻿@inherits LayoutComponentBase
+
+<div class="navbar fixed-top" style="background-color:#2d2d2d">
+    <div class="logo">
+        <a class="" @onclick="@ClickedOnLogo">
+            <img src="/logo.png" height="36" />
+        </a>
+    </div>
+
+    <div class="search-box">
+        <div class="input-group">
+            <input type="search" class="form-control small"
+                   @bind-value="@searchText"
+                   @bind-value:event="oninput"
+                   @onkeypress="@SearchKeyDown"
+                   @onfocusout="@OnSearchFocusOut" placeholder="Search" />
+
+            <button type="button" class="btn btn-success" style="border:1px solid white"
+                    @onclick="@Search"
+                    @onfocusout="@OnSearchFocusOut">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+
+        @if(showSearchResult)
+        {
+            <ul class="list-group">
+                @foreach(var item in searchResults)
+                {
+                    <li class="list-group-item">
+                        <a @onclick="(async() => await GoEntry(item.Id))">@item.Subject</a>
+                    </li>
+                }
+                @if(searchResults.Count == 0)
+                {
+                    <li class="list-group-item">
+                        <a>Not found entry</a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+
+    <div class="top-nav">
+        <AuthorizeView>
+            <Authorized>
+                <div class="dropdown">
+                    <button type="button" class="btn btn-sm btn-secondary dropdown-toggle btnMarginRight3px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @onclick="(() => ShowDropdown = !ShowDropdown)" @onfocusout="@DropdownFocusOut">
+                        <span>Profile</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-dark @(ShowDropdown?"show":"")">
+                        <a class="dropdown-item pointer" @onclick="@NavigateMyProfilePage">My Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item pointer" @onclick="@NavigateMyEntriesPage">My Entries</a>
+                        <a class="dropdown-item pointer" @onclick="@NavigateMyFavoriteEntriesPage">My Favorite Entries &ensp;<span class="oi oi-star favoriteStar"></span></a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item pointer" @onclick="@NavigateMyCommentsPage">My Comments</a>
+                        <a class="dropdown-item pointer" @onclick="@NavigateMyFavoriteCommentsPage">My Favorite Comments &ensp;<span class="oi oi-star favoriteStar"></span></a>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-secondary w-auto btnMarginRight3px" @onclick="@NavigateCreateEntryPage">Create Entry</button>
+                <button type="button" class="btn btn-sm btn-danger w-auto btnMarginRight3px" @onclick="@NavigateLogoutPage">Logout</button>
+            </Authorized>
+            <NotAuthorized>
+                <button type="button" class="btn btn-sm btn-primary w-auto btnMarginRight3px" @onclick="@NavigateLoginPage">Login</button>
+                <button type="button" class="btn btn-sm btn-success w-auto btnMarginRight3px" @onclick="@NavigateRegisterPage">Register</button>
+                <button type="button" class="btn btn-sm btn-secondary w-auto btnMarginRight3px" @onclick="@NavigateConfirmPage">Confirm Email</button>
+
+            </NotAuthorized>
+        </AuthorizeView>
+
+        @if(showAdministratorButton)
+        {
+            <button type="button" class="btn btn-sm btn-light w-auto" @onclick="@NavigateAdministratorPage">Administrator</button>
+        }
+    </div>
+
+
+    <div class="sub-nav">
+        @foreach(var tag in tags)
+        {
+            <a class="sub-nav-item @(SelectedTagId == @tag.Id ? "active" : "")" @onclick="(() => ClickedTag(tag.Id))">@tag.Name</a>
+        }
+    </div>
+</div>
+
+<div class="page">
+    <div class="sidebar">
+        <h5 class="text-white text-center sidebar-heading">@EntriesSubject</h5>
+
+        <div class="d-grid grap-1">
+            <button type="button" class="btn btn-sm btn-secondary more-data" @onclick="@RefreshEntries">Refresh</button>
+        </div>
+
+        <ul class="list-group" style="align-items:center">
+            <EntriesComponent @ref="@entriesComponent" />
+        </ul>
+    </div>
+
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+
+@code {
+    private string EntriesSubject { get; set; } = "Most Talked";
+
+    private EntriesComponent entriesComponent;
+
+    private bool ShowDropdown;
+    private string searchText;
+    private bool showSearchResult;
+    private bool showAdministratorButton;
+    private List<SearchEntryViewModel> searchResults = new();
+    private List<GetTagsViewModel> tags = new();
+    private Guid SelectedTagId;
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [Inject]
+    IEntryService entryService { get; set; }
+
+    [Inject]
+    ITagService tagService { get; set; }
+
+    [Inject]
+    IIdentityService identityService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            //Kullanıcının geçerli bir anahtarı olup olmadığı kontrol ediyor
+            var IsSuccess = await identityService.CheckToken();
+        }
+        catch(Exception)
+        {
+            identityService.Logout();
+        }
+
+        //Admin sayfasına yönlendirecek butonun görünüp görünmeyeceğini sağlar
+        showAdministratorButton = identityService.ShowAdministratorButton();
+
+        tags = await tagService.GetTags();
+    }
+
+    private async Task RefreshEntries()
+    {
+        await entriesComponent.RefreshList(1);
+    }
+
+    private async Task SearchKeyDown(KeyboardEventArgs e)
+    {
+        if(e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await Search();
+        }
+    }
+
+    private async Task DropdownFocusOut()
+    {
+        await Task.Delay(100);
+        if(ShowDropdown)
+        {
+            ShowDropdown = false;
+        }
+    }
+
+    private async Task OnSearchFocusOut()
+    {
+        await Task.Delay(100);
+        if(showSearchResult)
+        {
+            showSearchResult = false;
+        }
+    }
+
+    private async Task Search()
+    {
+        if(string.IsNullOrEmpty(searchText))
+            return;
+
+        searchResults = await entryService.SearcBySubject(searchText);
+
+        showSearchResult = true;
+    }
+
+    private async Task GoEntry(Guid entryId)
+    {
+        await OnSearchFocusOut();
+
+        navigationManager.NavigateTo($"entry/{entryId}");
+    }
+
+    private async Task ClickedTag(Guid tagId)
+    {
+        EntriesSubject = tags.FirstOrDefault(x => x.Id == tagId).Name;
+        entriesComponent.TagId = tagId;
+
+        await RefreshEntries();
+
+        SelectedTagId = tagId;
+
+        StateHasChanged();
+    }
+
+    private void NavigateMePage()
+    {
+        navigationManager.NavigateTo("/myProfile");
+    }
+
+    private void NavigateLoginPage()
+    {
+        navigationManager.NavigateTo("/login");
+    }
+
+    private void NavigateRegisterPage()
+    {
+        navigationManager.NavigateTo("/register");
+    }
+
+    private void NavigateConfirmPage()
+    {
+        navigationManager.NavigateTo("/confirm");
+    }
+
+    private void NavigateLogoutPage()
+    {
+        navigationManager.NavigateTo("/logout");
+    }
+
+    private void NavigateCreateEntryPage()
+    {
+        navigationManager.NavigateTo("/createEntry");
+    }
+
+    private void NavigateMyProfilePage()
+    {
+        navigationManager.NavigateTo("/myProfile");
+    }
+
+    private void NavigateMyEntriesPage()
+    {
+        navigationManager.NavigateTo("/myEntries");
+    }
+
+    private void NavigateMyCommentsPage()
+    {
+        navigationManager.NavigateTo("/myComments");
+    }
+
+    private void NavigateMyFavoriteEntriesPage()
+    {
+        navigationManager.NavigateTo("/myFavoriteEntries");
+    }
+
+    private void NavigateMyFavoriteCommentsPage()
+    {
+        navigationManager.NavigateTo("/myFavoriteComments");
+    }
+
+    private void NavigateAdministratorPage()
+    {
+        navigationManager.NavigateTo("/administrator");
+    }
+
+    private void ClickedOnLogo()
+    {
+        entriesComponent.TagId = Guid.Empty;
+        SelectedTagId = Guid.Empty;
+
+        RefreshEntries();
+
+        navigationManager.NavigateTo("/");
+    }
+
+    private void OnSelected(string selection)
+    {
+        Console.WriteLine(selection);
+    }
+}

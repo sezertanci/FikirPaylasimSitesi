@@ -1,0 +1,52 @@
+﻿@page "/myComments";
+
+@if(entries != null && entries.Results.Count > 0)
+{
+    foreach(var entry in entries.Results)
+    {
+        <EntryViewerComponent Entry="@entry.EntryDetail" />
+        <br />
+
+        foreach(var comment in entry.Comments)
+        {
+            <EntryCommentViewerComponent EntryComment="@comment" />
+        }
+
+        if(entry.Comments.Count == 0)
+        {
+            <hr class="hrStyle" />
+        }
+    }
+    <br />
+    <br />
+
+    <PaginationComponent TotalPage="@entries.PageInfo.TotalPageCount"
+                     CurrentPage="@currentPage"
+                     OnPageChanged="@OnPageChanged" />
+}
+
+@code {
+    [Inject]
+    IEntryCommentService entryCommentService { get; set; }
+
+    [Parameter]
+    public Guid TagId { get; set; }
+
+    private int currentPage = 1;
+    private int pageSize = 5;
+
+    PagedViewModel<GetMyCommentsViewModel> entries;
+
+    public async Task OnPageChanged(int pageNumber)
+    {
+        currentPage = pageNumber;
+
+        entries = await entryCommentService.GetMyComments(currentPage, pageSize);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        entries = await entryCommentService.GetMyComments(currentPage, pageSize);
+    }
+}
+

@@ -1,0 +1,58 @@
+﻿@if(Entry is not null)
+{
+    <div class="card border-0">
+        <div class="card-body">
+            <h1 class="card-title"><a href="/entry/@Entry.Id"><strong class="entry-subject">@Entry.Subject</strong></a></h1>
+            <br />
+            <p class="entry-content">@Entry.Content</p>
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <MyEntryFooterVoteFavoriteComponent DownVoteCount="@Entry.DownVoteCount" FavoritedCount="@Entry.FavoritedCount" UpVoteCount="@Entry.UpVoteCount" />
+                </div>
+                <div class="col-sm-2">
+                    <EntryButtonsComponent EntryId="@Entry.Id" EntrySubject="@Entry.Subject" EntryContent="@Entry.Content" OnAddTagClicked="AddTagClicked" />
+                </div>
+                <div class="col-sm-5" style="color:#bdbdbd">
+                    @if(Entry.Tags is not null && Entry.Tags.Count > 0)
+                    {
+                        <span>Tags : &emsp;</span>
+
+                        @foreach(var tag in Entry.Tags)
+                        {
+                            <label>&bull; @tag.Name &emsp;</label>
+                        }
+                    }
+                </div>
+                <div class="col-sm-2">
+                    <div class="card text-end border-0">
+                        <div class="entry-date">
+                            <a href="#">@Entry.CreatedDate.ToString("dd.MM.yyyy HH:mm:ss")</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public GetMyEntryDetailViewModel Entry { get; set; }
+
+    [Inject]
+    IEntryService entryService { get; set; }
+
+    private async Task AddTagClicked(EntryTagClickedEventArgs args)
+    {
+        var createEntryTag = new CreateEntryTagCommand();
+        createEntryTag.EntryId = args.EntryId;
+        createEntryTag.TagId = args.TagId;
+
+        await entryService.CreateEntryTag(createEntryTag);
+
+        Entry = await entryService.GetMyEntryDetail(createEntryTag.EntryId);
+
+        StateHasChanged();
+    }
+}

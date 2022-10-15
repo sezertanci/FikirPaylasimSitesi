@@ -1,0 +1,371 @@
+﻿@page "/myProfile";
+
+@using ChartJs.Blazor.PieChart
+
+@if(userDetail is not null)
+{
+    <h1 class="text-white">@userDetail.UserName</h1>
+
+    <hr style="margin-bottom:50px;background-color:white;height:3px" />
+}
+
+@if(isMyProfile)
+{
+    <input type="button" class="btn btn-sm btn-secondary" value="Change Details" @onclick="(() => showForm = !showForm)" />
+}
+
+
+@if(showForm)
+{
+    <br />
+    <br />
+
+    <EditForm Model="@userDetail" OnValidSubmit="@OnSaveClicked">
+        <div class="form-row">
+            <div class="col-sm-4">
+                <div class="input-group mb-2">
+                    <div class="input-group-append col-5">
+                        <div class="input-group-text">User Name</div>
+                    </div>
+                    <InputText @bind-Value="@userDetail.UserName" class="form-control" placeholder="Nick" />
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-sm-4">
+                <div class="input-group mb-2">
+                    <div class="input-group-append col-5">
+                        <div class="input-group-text">First Name</div>
+                    </div>
+                    <InputText @bind-Value="@userDetail.FirstName" class="form-control" placeholder="First Name" />
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-sm-4">
+                <div class="input-group mb-2">
+                    <div class="input-group-append col-5">
+                        <div class="input-group-text">Last Name</div>
+                    </div>
+                    <InputText @bind-Value="@userDetail.LastName" class="form-control" placeholder="Last Name" />
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-sm-4">
+                <div class="input-group mb-2">
+                    <div class="input-group-append col-5">
+                        <div class="input-group-text">Email</div>
+                    </div>
+                    <InputText @bind-Value="@userDetail.EmailAddress" class="form-control" placeholder="Email" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <button type="submit" class="form-control btn btn-sm btn-success w-auto">Save Changes</button>
+        <br />
+        <br />
+        <input type="button" class="form-control btn btn-dark bg-gradient w-auto" value="Change Password"
+           @onclick="(() => showChangePasswordSection = !showChangePasswordSection)" />
+        <br />
+
+        @if(showChangePasswordSection)
+        {
+            if(changePasswordErrorText != string.Empty)
+            {
+                <span class="text-danger">@changePasswordErrorText</span>
+                <br />
+            }
+
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="input-group mb-2">
+                        <div class="input-group-append col-5">
+                            <div class="input-group-text">Old Password</div>
+                        </div>
+                        <InputText type="password" @bind-Value="@oldPassword" class="form-control" placeholder="Old Password" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-sm-4">
+                    <div class="input-group mb-2">
+                        <div class="input-group-append col-5">
+                            <div class="input-group-text">New Password</div>
+                        </div>
+                        <InputText type="password" @bind-Value="@newPassword" class="form-control" placeholder="New Password" />
+                    </div>
+                </div>
+            </div>
+            <br />
+            <input type="button" class="form-control btn btn-sm btn-success w-auto" value="Save Password"
+           @onclick="@ChangePassword" />
+        }
+    </EditForm>
+}
+
+<hr class="hrStyle" />
+
+@if(statistics is not null)
+{
+    <div style="position: relative; width:80%; margin-left: auto; margin-right:auto;">
+        <Chart Config="entryPieConfig"></Chart>
+    </div>
+
+    <hr class="hrStyle" />
+
+    <div style="position: relative; width:80%; margin-left: auto; margin-right:auto;">
+        <Chart Config="commentPieConfig"></Chart>
+    </div>
+
+    <br />
+}
+
+
+@if(WarningModalOpen)
+{
+    <MustLoginModalComponent OnClose="@CloseUpdateModal" />
+}
+
+@code {
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    AuthenticationStateProvider authenticationStateProvider { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [Inject]
+    IUserService userService { get; set; }
+
+    private UserDetailViewModel userDetail;
+    private GetMyStatisticsViewModel statistics;
+
+    private bool WarningModalOpen = false;
+
+    private bool showForm;
+    private bool isMyProfile;
+    private bool showChangePasswordSection;
+    private string changePasswordErrorText;
+    private string oldPassword;
+    private string newPassword;
+    private string emailBeforeChange;
+
+    protected override async Task OnInitializedAsync()
+    {
+        statistics = await userService.GetMyStatistics();
+
+        ConfigureEntryPieConfig();
+        ConfigureCommentPieConfig();
+
+        var UserId = await authenticationStateProvider.GetUserId();
+
+        isMyProfile = UserId != Guid.Empty;
+
+        if(!isMyProfile)
+        {
+            OpenWarningModal();
+            return;
+        }
+
+        userDetail = await userService.GetUserDetail(UserId);
+
+        emailBeforeChange = userDetail.EmailAddress;
+    }
+
+    private async Task OnSaveClicked()
+    {
+        UpdateUserCommand command = new UpdateUserCommand
+            {
+                EmailAddress = userDetail.EmailAddress,
+                FirstName = userDetail.FirstName,
+                Id = userDetail.Id,
+                LastName = userDetail.LastName,
+                UserName = userDetail.UserName
+            };
+        var succes = await userService.UpdateUser(command);
+
+        if(emailBeforeChange != userDetail.EmailAddress)
+        {
+            navigationManager.NavigateTo("/logout");
+        }
+
+        if(succes)
+        {
+            showForm = false;
+        }
+
+    }
+
+    private async Task ChangePassword()
+    {
+        if(string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
+        {
+            changePasswordErrorText = "Please check old and new password";
+
+            return;
+        }
+
+        try
+        {
+            var success = await userService.ChangeUserPassword(oldPassword, newPassword);
+
+            if(success)
+            {
+                showChangePasswordSection = false;
+            }
+        }
+        catch(DatabaseValidationException ex)
+        {
+            changePasswordErrorText = ex.Message;
+        }
+    }
+
+    private void OpenWarningModal()
+    {
+        WarningModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void CloseUpdateModal()
+    {
+        WarningModalOpen = false;
+        StateHasChanged();
+    }
+
+    private PieConfig entryPieConfig;
+    private PieConfig commentPieConfig;
+
+    private void ConfigureEntryPieConfig()
+    {
+        entryPieConfig = new PieConfig
+            {
+                Options = new PieOptions
+                {
+                    Responsive = true,
+                    Title = new OptionsTitle
+                    {
+                        Display = true,
+                        Text = "Entry Statistics",
+                        FontColor = "White",
+                        FontSize = 30,
+                        FontFamily = "Helvetica Neue"
+                    },
+                    Legend = new Legend
+                    {
+                        Labels = new LegendLabels
+                        {
+                            FontColor = "White",
+                            FontSize = 15,
+                            Padding = 30
+                        },
+                        Position = Position.Bottom
+                    }
+                }
+            };
+
+        var areas = new[] { "My Entries", "Favorites Of My Entries", "Comments Of My Entries", "Upvotes Of My Entries", "Downvotes Of My Entries", "My Favorite Entries" };
+
+        foreach(string color in areas)
+        {
+            entryPieConfig.Data.Labels.Add(color);
+        }
+
+        int[] countsArray = new[]
+        {
+            statistics.MyEntriesCount,
+            statistics.FavoritesOfMyEntriesCount,
+            statistics.CommentsOfMyEntriesCount,
+            statistics.UpvotesOfMyEntriesCount,
+            statistics.DownvotesOfMyEntriesCount,
+            statistics.MyFavoriteEntriesCount
+    };
+
+        PieDataset<int> dataset = new PieDataset<int>(countsArray)
+            {
+                BackgroundColor = new[]
+                                                                        {
+                                                    Colors.NavyBlue,
+                                                    Colors.Yellow,
+                                                    Colors.IceBlue,
+                                                    Colors.Green,
+                                                    Colors.Red,
+                                                    Colors.GreenYellow
+            }
+            };
+
+        entryPieConfig.Data.Datasets.Add(dataset);
+    }
+
+    private void ConfigureCommentPieConfig()
+    {
+        commentPieConfig = new PieConfig
+            {
+                Options = new PieOptions
+                {
+                    Responsive = true,
+                    Title = new OptionsTitle
+                    {
+                        Display = true,
+                        Text = "Comment Statistics",
+                        FontColor = "White",
+                        FontSize = 30,
+                        FontFamily = "Helvetica Neue"
+                    },
+                    Legend = new Legend
+                    {
+                        Labels = new LegendLabels
+                        {
+                            FontColor = "White",
+                            FontSize = 15,
+                            Padding = 30
+                        },
+                        Position = Position.Bottom
+                    }
+                }
+            };
+
+        var areas = new[] { "My Comments", "Favorites Of My Comments", "Upvotes Of My Comments", "Downvotes Of My Comments", "My Favorite Comments" };
+
+        foreach(string color in areas)
+        {
+            commentPieConfig.Data.Labels.Add(color);
+        }
+
+        int[] countsArray = new[]
+        {
+            statistics.MyCommentsCount,
+            statistics.FavoritesOfMyCommentsCount,
+            statistics.UpvotesOfMyCommentsCount,
+            statistics.DownvotesOfMyCommentsCount,
+            statistics.MyFavoriteCommentsCount
+    };
+
+        PieDataset<int> dataset = new PieDataset<int>(countsArray)
+            {
+                BackgroundColor = new[]                                                                                                       {
+                    Colors.NavyBlue,
+                    Colors.Yellow,
+                    Colors.Green,
+                    Colors.Red,
+                    Colors.GreenYellow
+                    }
+            };
+
+        commentPieConfig.Data.Datasets.Add(dataset);
+    }
+
+    public class Colors
+    {
+        public static string NavyBlue = ColorUtil.ColorHexString(63, 81, 181);
+        public static string Yellow = ColorUtil.ColorHexString(255, 238, 88);
+        public static string IceBlue = ColorUtil.ColorHexString(213, 227, 228);
+        public static string Green = ColorUtil.ColorHexString(75, 175, 80);
+        public static string Grey = ColorUtil.ColorHexString(84, 110, 122);
+        public static string Red = ColorUtil.ColorHexString(255, 0, 0);
+        public static string GreenYellow = ColorUtil.ColorHexString(184, 213, 86);
+    }
+}

@@ -1,0 +1,57 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.JSInterop
+@using WebApp
+@using WebApp.Shared
+@using Blazored.LocalStorage
+
+@using WebApp.Infrastructure.Models
+@using WebApp.Infrastructure.Services.Interfaces
+@using WebApp.Infrastructure.Extensions
+@using Common.Infrastructure.Exceptions
+@using Common.Models
+@using Common.Models.Page
+@using Common.Models.Queries
+@using Common.Models.RequestModels.EntryCommentRequestModels.CreateRequestModels
+@using Common.Models.RequestModels.EntryCommentRequestModels.DeleteRequestModel
+@using Common.Models.RequestModels.EntryCommentRequestModels.UpdateRequestModels
+@using Common.Models.RequestModels.EntryRequestModels.CreateRequestModels
+@using Common.Models.RequestModels.EntryRequestModels.DeleteRequestModels
+@using Common.Models.RequestModels.EntryRequestModels.UpdateRequestModels
+@using Common.Models.RequestModels.TagRequestModels.CreateRequestModels
+@using Common.Models.RequestModels.TagRequestModels.DeleteRequestModels
+@using Common.Models.RequestModels.TagRequestModels.UpdateRequestModels
+@using Common.Models.RequestModels.UserRequestModels.ConfirmEmailRequestModel
+@using Common.Models.RequestModels.UserRequestModels.CreateRequestModels
+@using Common.Models.RequestModels.UserRequestModels.DeleteRequestModels
+@using Common.Models.RequestModels.UserRequestModels.LoginRequestModels
+@using Common.Models.RequestModels.UserRequestModels.UpdateRequestModels
+
+@using WebApp.Pages.MainPages
+@using WebApp.Pages.EntryPages
+@using WebApp.Pages.EntryPages.Components
+@using WebApp.Pages.EntryPages.Components.VoteFavoriteComponents
+@using WebApp.Pages.EntryComment.Components
+@using WebApp.Pages.Components
+@using WebApp.Pages.UserPages.Components
+@using WebApp.Pages.UserPages.MyPages
+@using WebApp.Pages.UserPages.MyPages.MyVoteFavoriteComponents
+
+@using ChartJs.Blazor;
+
+@using ChartJs.Blazor.Common
+@using ChartJs.Blazor.Common.Axes
+@using ChartJs.Blazor.Common.Axes.Ticks
+@using ChartJs.Blazor.Common.Enums
+@using ChartJs.Blazor.Common.Handlers
+@using ChartJs.Blazor.Common.Time
+@using ChartJs.Blazor.Util
+@using ChartJs.Blazor.Interop
+
+@using WebApp.Shared.Tooltip

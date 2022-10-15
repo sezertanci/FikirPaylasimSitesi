@@ -1,0 +1,77 @@
+﻿@if(TotalPage > 0 && CurrentPage > 0)
+{
+    <div class="d-flex flex-row-reverse">
+        <div class="p-2">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item widht55px @(PreviousPage ? "" : "disabled nodrop")" @onclick="PreviousClick" title="Previous">
+                        <a class="page-link pointer" aria-label="Previous">
+                            @* <span aria-hidden="true">&laquo;</span>*@
+                            <span class="">Prev</span>
+                        </a>
+                    </li>
+                    <select class="custom-select widht55px pointer" style="border:1px;" @onchange="Changed" value='@CurrentPage'>
+                        @for(int i = 1; i <= TotalPage; i++)
+                        {
+                            <option value="@i" "@(CurrentPage == @i ? "selected" : "")">@i</option>
+                        }
+                    </select>
+                    <li class="page-item widht55px @(NextPage ? "" : "disabled nodrop")" @onclick="NextClick" title="Next">
+                        <a class="page-link pointer" aria-label="Next">
+                            @*  <span aria-hidden="true">&raquo;</span>*@
+                            <span class="">Next</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int TotalPage { get; set; }
+
+    [Parameter]
+    public int CurrentPage { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnPageChanged { get; set; }
+
+    private bool PreviousPage => CurrentPage == 1 ? false : true;
+    private bool NextPage => CurrentPage == TotalPage ? false : true;
+    private bool Disable { get; set; } = false;
+
+    private async Task Changed(ChangeEventArgs e)
+    {
+        await OnPageChanged.InvokeAsync(int.Parse(e.Value.ToString()));
+    }
+
+    private async Task PreviousClick()
+    {
+        if(CurrentPage != 1 && !Disable)
+        {
+            Disable = true;
+
+            await OnPageChanged.InvokeAsync(CurrentPage - 1);
+
+            Disable = false;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task NextClick()
+    {
+        if(CurrentPage != TotalPage && !Disable)
+        {
+            Disable = true;
+
+            await OnPageChanged.InvokeAsync(CurrentPage + 1);
+
+            Disable = false;
+        }
+
+        StateHasChanged();
+    }
+}

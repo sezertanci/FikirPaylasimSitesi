@@ -1,0 +1,87 @@
+﻿<div class="modal-backdrop show"></div>
+<div class="modal" tabindex="-1" role="dialog" style="display:block;">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Tag Your Entry</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="@Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <div class="input-group">
+                        <div class="col-sm-2">
+                            <label class="col-form-label">Tags</label>
+                        </div>
+                        <div class="col-sm-6">
+                            @if(Tags is not null)
+                            {
+                                <select class="form-select pointer" @onchange="Changed">
+                                    <option value="@Guid.Empty">Choose</option>
+                                    @foreach(var tag in Tags)
+                                    {
+                                        <option value="@tag.Id">@tag.Name</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-success" @onclick="@Save">Save</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal" @onclick="() => Close()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public Guid EntryId { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryTagClickedEventArgs> OnAddTagClicked { get; set; }
+
+    [Inject]
+    ITagService tagService { get; set; }
+
+    private List<GetTagsViewModel> Tags;
+
+    private CreateEntryTagCommand CreateEntryTag = new();
+
+    protected override async void OnInitialized()
+    {
+        CreateEntryTag.EntryId = EntryId;
+
+        Tags = await tagService.GetTags();
+
+        StateHasChanged();
+    }
+
+    public async void Close()
+    {
+        await OnClose.InvokeAsync(false);
+    }
+
+    public async Task Save()
+    {
+        if(CreateEntryTag.TagId == Guid.Empty) return;
+
+        var eventArgs = new EntryTagClickedEventArgs(CreateEntryTag.EntryId, CreateEntryTag.TagId);
+
+        await OnAddTagClicked.InvokeAsync(eventArgs);
+
+        Close();
+
+        StateHasChanged();
+    }
+
+    private void Changed(ChangeEventArgs e)
+    {
+        CreateEntryTag.TagId = Guid.Parse(e.Value.ToString());
+    }
+}

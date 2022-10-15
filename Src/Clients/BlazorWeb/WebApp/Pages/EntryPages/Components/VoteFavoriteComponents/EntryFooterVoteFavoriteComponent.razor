@@ -1,0 +1,106 @@
+﻿<div>
+    <Tooltip Text="Upvote!">
+        <span>
+            <a class="p-1">
+                <span class="oi oi-arrow-top entry-vote @(VoteType == VoteType.UpVote ? "text-success" : "text-secondary")" @onclick="(() => UpClicked())"></span>
+            </a>
+        </span>
+    </Tooltip>
+    <Tooltip Text="Downvote!">
+        <span>
+            <a class="p-3">
+                <span class="oi oi-arrow-bottom entry-vote @(VoteType == VoteType.DownVote ? "text-danger" : "text-secondary")" @onclick="(() => DownClicked())"></span>
+            </a>
+        </span>
+    </Tooltip>
+
+    <EntryFooterFavoriteComponent Id="@Id" FavoritedCount="@FavoritedCount" IsFavorited="@IsFavorited" OnFavoriteClicked="@FavoritedClicked" />
+</div>
+
+@if(WarningModalOpen)
+{
+    <MustLoginModalComponent OnClose="@CloseUpdateModal" />
+}
+
+
+
+@code {
+    [Parameter]
+    public VoteType VoteType { get; set; }
+
+    [Parameter]
+    public EventCallback<FavoriteClickedEventArgs> OnFavoriteClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<VoteClickedEventArgs> OnVoteClicked { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [Parameter]
+    public bool IsFavorited { get; set; }
+
+    [Parameter]
+    public int FavoritedCount { get; set; }
+
+    private bool WarningModalOpen = false;
+
+    private async Task FavoritedClicked()
+    {
+        IsFavorited = !IsFavorited;
+
+        var eventArgs = new FavoriteClickedEventArgs();
+        eventArgs.Id = Id;
+        eventArgs.IsFaved = IsFavorited;
+
+        await OnFavoriteClicked.InvokeAsync(eventArgs);
+
+        StateHasChanged();
+    }
+
+    private async Task UpClicked()
+    {
+        var eventArgs = new VoteClickedEventArgs();
+        eventArgs.Id = Id;
+        eventArgs.IsUpVoteClicked = true;
+        eventArgs.IsUpVoteDeleted = VoteType == VoteType.UpVote;
+
+        await Vote(eventArgs);
+    }
+
+    private async Task DownClicked()
+    {
+        var eventArgs = new VoteClickedEventArgs();
+        eventArgs.Id = Id;
+        eventArgs.IsDownVoteClicked = true;
+        eventArgs.IsDownVoteDeleted = VoteType == VoteType.DownVote;
+
+        await Vote(eventArgs);
+    }
+
+    private async Task Vote(VoteClickedEventArgs voteClickedEventArgs)
+    {
+        try
+        {
+            await OnVoteClicked.InvokeAsync(voteClickedEventArgs);
+        }
+        catch(Exception)
+        {
+            OpenWarningModal();
+        }
+
+        StateHasChanged();
+    }
+
+    private void OpenWarningModal()
+    {
+        WarningModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void CloseUpdateModal()
+    {
+        WarningModalOpen = false;
+        StateHasChanged();
+    }
+}

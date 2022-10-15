@@ -1,0 +1,128 @@
+﻿@if(EntryComment != null)
+{
+    <div class="card border-0">
+        <div class="card-body col-md-12">
+            <p class="entry-content"><span class="text-light oi oi-caret-right"></span>&emsp; @EntryComment.Content</p>
+
+            <div class="row">
+                <div class="col-sm-3">
+                    @if(EntryComment.MyComment)
+                    {
+                        <EntryFooterFavoriteComponent Id="@EntryComment.Id"
+                                              OnFavoriteClicked="@OnFavoriteClicked"
+                                              FavoritedCount="@EntryComment.FavoritedCount"
+                                              IsFavorited="@EntryComment.Favorited" />
+                    }
+                    else
+                    {
+                        <EntryFooterVoteFavoriteComponent Id="@EntryComment.Id"
+                                                  OnFavoriteClicked="@OnFavoriteClicked"
+                                                  FavoritedCount="@EntryComment.FavoritedCount"
+                                                  IsFavorited="@EntryComment.Favorited"
+                                                  OnVoteClicked="@OnVoteClicked"
+                                                  VoteType="@EntryComment.VoteType" />
+                    }
+
+                </div>
+                <div class="col-sm-2">
+                    @if(EntryComment.MyComment)
+                    {
+                        <CommentButtonsComponent EntryCommentId="@EntryComment.Id" EntryCommentContent="@EntryComment.Content" OnUpdateClicked="@OnUpdateClicked" OnDeleteClicked="@OnDeleteClicked" />
+                    }
+                </div>
+                <div class="col-sm-7">
+                    <EntryFooterAuthorComponent UserName="@EntryComment.UserName"
+                                            CreateDate="@EntryComment.CreatedDate" />
+                </div>
+            </div>
+
+            <hr style="border-bottom:1px dashed white;" />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public GetEntryCommentsViewModel EntryComment { get; set; }
+
+    [Inject]
+    IVoteService voteService { get; set; }
+
+    [Inject]
+    IFavoriteService favoriteService { get; set; }
+
+    [Inject]
+    IEntryService entryService { get; set; }
+
+    private async Task OnUpdateClicked(EntryCommentClickedEventArgs args)
+    {
+        var updateEntryComment = new UpdateEntryCommentCommand();
+        updateEntryComment.Id = args.EntryCommentId;
+        updateEntryComment.Content = args.EntryCommentContent;
+
+        await entryService.UpdateEntryComment(updateEntryComment);
+
+        EntryComment.Content = args.EntryCommentContent;
+
+        StateHasChanged();
+    }
+
+    private async Task OnDeleteClicked(EntryCommentClickedEventArgs args)
+    {
+        var deleteEntryComment = new DeleteEntryCommentCommand();
+        deleteEntryComment.Id = args.EntryCommentId;
+
+        await entryService.DeleteEntryComment(deleteEntryComment);
+
+        EntryComment = null;
+
+        StateHasChanged();
+    }
+
+    private async Task OnFavoriteClicked(FavoriteClickedEventArgs args)
+    {
+        if (EntryComment.MyComment) return;
+
+        if(args.IsFaved)
+        {
+            await favoriteService.CreateEntryCommentFavorite(args.Id);
+            EntryComment.Favorited = true;
+            EntryComment.FavoritedCount++;
+        }
+        else
+        {
+            await favoriteService.DeleteEntryCommentFavorite(args.Id);
+            EntryComment.Favorited = false;
+            EntryComment.FavoritedCount--;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnVoteClicked(VoteClickedEventArgs args)
+    {
+        if(args.IsUpVoteDeleted || args.IsDownVoteDeleted)
+        {
+            await voteService.DeleteEntryCommentVote(args.Id);
+            EntryComment.VoteType = VoteType.None;
+
+            return;
+        }
+
+        if(args.IsUpVoteClicked)
+        {
+            await voteService.CreateEntryCommentUpVote(args.Id);
+            EntryComment.VoteType = VoteType.UpVote;
+
+            return;
+        }
+
+        if(args.IsDownVoteClicked)
+        {
+            await voteService.CreateEntryCommentDownVote(args.Id);
+            EntryComment.VoteType = VoteType.DownVote;
+
+            return;
+        }
+    }
+}

@@ -1,0 +1,10 @@
+﻿<Tooltip Text="Favorite Count">
+    <span class="p-3 oi oi-star favoriteStar entry-faved">
+        <span>&ensp; @FavoritedCount</span>
+    </span>
+</Tooltip>
+
+@code {
+    [Parameter]
+    public int FavoritedCount { get; set; }
+}

@@ -1,0 +1,73 @@
+﻿<div class="modal-backdrop show"></div>
+<div class="modal" tabindex="-1" role="dialog" style="display:block;">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Your Entry</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" @onclick="@Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@UpdateEntry" OnValidSubmit="@UpdateEntryClicked">
+                    <div class="entry-comment-add-container">
+                        <div class="entry-comment-add">
+                            <InputText class="form-control" @bind-Value="@UpdateEntry.Subject" />
+                            <br />
+                            <InputTextArea class="entry-comment-textarea" @bind-Value="UpdateEntry.Content" />
+
+                            <div class="entry-comment-actions">
+                                <input type="submit" class="btn btn-sm btn-success" value="Save changes" />
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal" @onclick="() => Close()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public Guid EntryId { get; set; }
+
+    [Parameter]
+    public string EntrySubject { get; set; }
+
+    [Parameter]
+    public string EntryContent { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryClickedEventArgs> OnUpdateClicked { get; set; }
+
+    private UpdateEntryCommand UpdateEntry = new();
+
+    protected override void OnInitialized()
+    {
+        UpdateEntry.Content = EntryContent;
+        UpdateEntry.Subject = EntrySubject;
+        UpdateEntry.Id = EntryId;
+    }
+
+    public async void Close()
+    {
+        await OnClose.InvokeAsync(false);
+    }
+
+    public async Task UpdateEntryClicked()
+    {
+        var eventArgs = new EntryClickedEventArgs(UpdateEntry.Id, UpdateEntry.Subject, UpdateEntry.Content);
+
+        await OnUpdateClicked.InvokeAsync(eventArgs);
+
+        Close();
+
+        StateHasChanged();
+    }
+
+}

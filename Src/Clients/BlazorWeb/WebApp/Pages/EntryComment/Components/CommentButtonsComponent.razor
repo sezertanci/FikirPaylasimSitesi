@@ -1,0 +1,80 @@
+﻿<div>
+    <span>
+        <a class="p-1" @onclick="@OpenUpdateModal">
+            <Tooltip Text="Update!"><span class="pointer fa fa-edit"></span></Tooltip>
+        </a>
+    </span>
+    <span>
+        <a class="p-1" @onclick="@OpenDeleteModal">
+            <Tooltip Text="Delete!"><span class="pointer fa fa-close"></span></Tooltip>
+        </a>
+    </span>
+</div>
+
+@if(UpdateModalOpen)
+{
+    <UpdateEntryCommentComponent OnClose="@CloseUpdateModal" EntryCommentId="@EntryCommentId" EntryCommentContent="@EntryCommentContent" OnUpdateClicked="@UpdateClicked" />
+}
+
+@if(DeleteModalOpen)
+{
+    <DeleteEntryCommentComponent OnClose="@CloseDeleteModal" EntryCommentId="@EntryCommentId" EntryCommentContent="@EntryCommentContent" OnDeleteClicked="@DeleteClicked" />
+}
+
+@code {
+    [Inject]
+    IJSRuntime JsRuntime { get; set; }
+
+    [Parameter]
+    public Guid EntryCommentId { get; set; }
+
+    [Parameter]
+    public string EntryCommentContent { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryCommentClickedEventArgs> OnUpdateClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<EntryCommentClickedEventArgs> OnDeleteClicked { get; set; }
+
+    private bool UpdateModalOpen { get; set; }
+    private bool DeleteModalOpen { get; set; }
+
+    private void CloseUpdateModal()
+    {
+        UpdateModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void CloseDeleteModal()
+    {
+        DeleteModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenUpdateModal()
+    {
+        UpdateModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteModal()
+    {
+        DeleteModalOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task UpdateClicked(EntryCommentClickedEventArgs eventArgs)
+    {
+        await OnUpdateClicked.InvokeAsync(eventArgs);
+
+        StateHasChanged();
+    }
+
+    private async Task DeleteClicked(EntryCommentClickedEventArgs eventArgs)
+    {
+        await OnDeleteClicked.InvokeAsync(eventArgs);
+
+        StateHasChanged();
+    }
+}

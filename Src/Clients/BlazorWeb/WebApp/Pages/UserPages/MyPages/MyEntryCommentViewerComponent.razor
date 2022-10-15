@@ -1,0 +1,95 @@
+﻿@if(Entry is not null)
+{
+    <div class="card border-0">
+        <div class="card-body">
+            <h1 class="card-title"><a href="/entry/@Entry.Id"><strong class="entry-subject">@Entry.Subject</strong></a></h1>
+            <br />
+            <p class="entry-content">@Entry.Content</p>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    @if(Entry.MyEntry)
+                    {
+                        <EntryFooterFavoriteComponent Id="@Entry.Id"
+                                              OnFavoriteClicked="@OnFavoriteClicked"
+                                              FavoritedCount="@Entry.FavoritedCount"
+                                              IsFavorited="@Entry.Favorited" />
+                    }
+                    else
+                    {
+                        <EntryFooterVoteFavoriteComponent Id="@Entry.Id"
+                                                  OnFavoriteClicked="@OnFavoriteClicked"
+                                                  FavoritedCount="@Entry.FavoritedCount"
+                                                  IsFavorited="@Entry.Favorited"
+                                                  OnVoteClicked="@OnVoteClicked"
+                                                  VoteType="@Entry.VoteType" />
+                    }
+                </div>
+                <div class="col-sm-6">
+                    <EntryFooterAuthorComponent UserName="@Entry.UserName"
+                                            CreateDate="@Entry.CreatedDate" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public GetMyCommentsViewModel Comments { get; set; }
+
+    private GetEntryDetailViewModel Entry { get; set; }
+
+    [Inject]
+    IVoteService voteService { get; set; }
+
+    [Inject]
+    IFavoriteService favoriteService { get; set; }
+
+    private async Task OnFavoriteClicked(FavoriteClickedEventArgs args)
+    {
+        if(Entry.MyEntry) return;
+
+        if(args.IsFaved)
+        {
+            await favoriteService.CreateEntryFavorite(args.Id);
+            Entry.Favorited = true;
+            Entry.FavoritedCount++;
+        }
+        else
+        {
+            await favoriteService.DeleteEntryFavorite(args.Id);
+            Entry.Favorited = false;
+            Entry.FavoritedCount--;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnVoteClicked(VoteClickedEventArgs args)
+    {
+        if(args.IsUpVoteDeleted || args.IsDownVoteDeleted)
+        {
+            await voteService.DeleteEntryVote(args.Id);
+            Entry.VoteType = VoteType.None;
+
+            return;
+        }
+
+        if(args.IsUpVoteClicked)
+        {
+            await voteService.CreateEntryUpVote(args.Id);
+            Entry.VoteType = VoteType.UpVote;
+
+            return;
+        }
+
+        if(args.IsDownVoteClicked)
+        {
+            await voteService.CreateEntryDownVote(args.Id);
+            Entry.VoteType = VoteType.DownVote;
+
+            return;
+        }
+    }
+}
