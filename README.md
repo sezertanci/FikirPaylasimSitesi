@@ -7,7 +7,7 @@
 - EntityFrameworkCore
 - Mssql
 - WebApi
-- JwtBearer
+- Jwt Token
 - Blazor
 - Automapper
 - FluentValidation
