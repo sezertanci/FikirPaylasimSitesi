@@ -46,7 +46,7 @@
             <Authorized>
                 <div class="dropdown">
                     <button type="button" class="btn btn-sm btn-secondary dropdown-toggle btnMarginRight3px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @onclick="(() => ShowDropdown = !ShowDropdown)" @onfocusout="@DropdownFocusOut">
-                        <span>Profile</span>
+                        <span>@UserName</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-dark @(ShowDropdown?"show":"")">
                         <a class="dropdown-item pointer" @onclick="@NavigateMyProfilePage">My Profile</a>
@@ -110,6 +110,7 @@
 
     private EntriesComponent entriesComponent;
 
+    private string UserName;
     private bool ShowDropdown;
     private string searchText;
     private bool showSearchResult;
@@ -136,6 +137,10 @@
         {
             //Kullanıcının geçerli bir anahtarı olup olmadığı kontrol ediyor
             var IsSuccess = await identityService.CheckToken();
+
+            UserName = identityService.GetName();
+
+            StateHasChanged();
         }
         catch(Exception)
         {

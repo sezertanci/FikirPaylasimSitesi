@@ -18,5 +18,6 @@ namespace WebApp.Infrastructure.Services.Interfaces
         Task<bool> CheckToken();
         string GetAdminPassword();
         bool ShowAdministratorButton();
+        string GetName();
     }
 }

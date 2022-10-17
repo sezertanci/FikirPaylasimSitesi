@@ -6,6 +6,7 @@ namespace WebApp.Infrastructure.Extensions
     {
         public const string TokenName = "token";
         public const string UserName = "username";
+        public const string Name = "name";
         public const string UserId = "userid";
 
         public static bool IsUserLoggedIn(this ISyncLocalStorageService syncLocalStorageService)
@@ -75,6 +76,16 @@ namespace WebApp.Infrastructure.Extensions
         public static async Task SetToken(this ILocalStorageService syncLocalStorageService, string value)
         {
             await syncLocalStorageService.SetItemAsync(TokenName, value);
+        }
+
+        public static string GetName(this ISyncLocalStorageService syncLocalStorageService)
+        {
+            return syncLocalStorageService.GetItem<string>(Name);
+        }
+
+        public static void SetName(this ISyncLocalStorageService syncLocalStorageService, string value)
+        {
+            syncLocalStorageService.SetItem(Name, value);
         }
     }
 }

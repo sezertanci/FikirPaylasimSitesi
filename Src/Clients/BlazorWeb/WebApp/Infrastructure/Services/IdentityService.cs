@@ -73,6 +73,7 @@ namespace WebApp.Infrastructure.Services
                 syncLocalStorageService.SetToken(response.Token);
                 syncLocalStorageService.SetUserName(response.UserName);
                 syncLocalStorageService.SetUserId(response.Id);
+                syncLocalStorageService.SetName(response.FirstName + " " + response.LastName);
 
                 ((AuthStateProvider)authenticationStateProvider).NotifyUserLogin(response.UserName, response.Id);
 
@@ -137,6 +138,11 @@ namespace WebApp.Infrastructure.Services
         public bool ShowAdministratorButton()
         {
             return Convert.ToBoolean(configuration["ShowAdministratorButton"]);
+        }
+
+        public string GetName()
+        {
+            return syncLocalStorageService.GetName();
         }
     }
 }
