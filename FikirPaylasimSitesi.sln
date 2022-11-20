@@ -39,6 +39,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoteWorkerService", "Src\Pr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserWorkerService", "Src\Projections\UserWorkerService\UserWorkerService.csproj", "{9156B362-2B9E-4D91-96DE-CAC4CB67A00A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreenShots", "ScreenShots", "{9819ADE2-B11F-4864-9FC8-FAC19A1C091B}"
+	ProjectSection(SolutionItems) = preProject
+		Src\ScreenShots\CreateEntry.PNG = Src\ScreenShots\CreateEntry.PNG
+		Src\ScreenShots\Entry.PNG = Src\ScreenShots\Entry.PNG
+		Src\ScreenShots\EntryTags.PNG = Src\ScreenShots\EntryTags.PNG
+		Src\ScreenShots\login.PNG = Src\ScreenShots\login.PNG
+		Src\ScreenShots\MainPage.PNG = Src\ScreenShots\MainPage.PNG
+		Src\ScreenShots\MyComments.PNG = Src\ScreenShots\MyComments.PNG
+		Src\ScreenShots\MyEntries.PNG = Src\ScreenShots\MyEntries.PNG
+		Src\ScreenShots\MyEntryComment.PNG = Src\ScreenShots\MyEntryComment.PNG
+		Src\ScreenShots\MyFavoriteComments.PNG = Src\ScreenShots\MyFavoriteComments.PNG
+		Src\ScreenShots\MyProfile1.PNG = Src\ScreenShots\MyProfile1.PNG
+		Src\ScreenShots\MyProfile2.PNG = Src\ScreenShots\MyProfile2.PNG
+		Src\ScreenShots\MyProfile3.PNG = Src\ScreenShots\MyProfile3.PNG
+		Src\ScreenShots\Register.PNG = Src\ScreenShots\Register.PNG
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +120,7 @@ Global
 		{AEBEF07D-33F7-4CA1-B495-8A859144BDA9} = {74E24E32-2D61-4B8E-BF7F-A66773E3AE83}
 		{1CD68C4D-2355-4C57-8EF3-FE6C5DF9AB51} = {74E24E32-2D61-4B8E-BF7F-A66773E3AE83}
 		{9156B362-2B9E-4D91-96DE-CAC4CB67A00A} = {74E24E32-2D61-4B8E-BF7F-A66773E3AE83}
+		{9819ADE2-B11F-4864-9FC8-FAC19A1C091B} = {4C1FFC40-2CF3-4487-803A-D495831FE6B4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5667EB40-7D1A-4DB6-B2E1-47760DF17033}
