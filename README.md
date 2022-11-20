@@ -2,7 +2,7 @@
 
 ## Kullanılan Teknolojiler
 
-- CQRS Mimarisi
+- Onion Architecture CQRS Pattern
 - .Net 6
 - EntityFrameworkCore
 - Mssql
