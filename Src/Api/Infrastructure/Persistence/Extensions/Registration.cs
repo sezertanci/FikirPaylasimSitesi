@@ -1,6 +1,6 @@
 ﻿using Application.Interfaces.Repositories;
+using Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Persistence.Context;
 using Persistence.Repositories;
@@ -9,13 +9,11 @@ namespace Persistence.Extensions
 {
     public static class Registration
     {
-        public static IServiceCollection AddInfrastructureRegistration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructureRegistration(this IServiceCollection services)
         {
             services.AddDbContext<FikirPaylasimSitesiContext>(conf =>
             {
-                var connString = configuration.GetConnectionString("SqlServerConnectionString");
-
-                conf.UseSqlServer(connString, opt =>
+                conf.UseSqlServer(Configuration.SqlServerConnectionString, opt =>
                 {
                     opt.EnableRetryOnFailure();
                 });

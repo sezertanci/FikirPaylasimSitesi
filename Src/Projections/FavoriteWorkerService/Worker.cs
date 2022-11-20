@@ -9,17 +9,15 @@ namespace FavoriteWorkerService
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly IConfiguration configuration;
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration)
+        public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            this.configuration = configuration;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var favoriteService = new FavoriteService(configuration["SqlServerConnectionString"]);
+            var favoriteService = new FavoriteService();
 
             var entryFavoriteExchangeName = CommonConstants.EntryFavoriteExchangeName;
             var createEntryFavoriteQueueName = CommonConstants.CreateEntryFavoriteQueueName;

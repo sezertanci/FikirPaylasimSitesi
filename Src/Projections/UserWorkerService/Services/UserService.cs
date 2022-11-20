@@ -1,4 +1,5 @@
-﻿using Common.Events.UserEvent;
+﻿using Common;
+using Common.Events.UserEvent;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -6,12 +7,7 @@ namespace UserWorkerService.Services
 {
     public class UserService
     {
-        private readonly string connectionString;
-
-        public UserService(string connectionString)
-        {
-            this.connectionString = connectionString;
-        }
+        private readonly string connectionString = Configuration.SqlServerConnectionString;
 
         public async Task<Guid> CreateEmailConfirmation(UserEmailChangedEvent userEmailChangedEvent)
         {

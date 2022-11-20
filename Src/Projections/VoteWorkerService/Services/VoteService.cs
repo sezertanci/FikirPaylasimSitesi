@@ -1,4 +1,5 @@
-﻿using Common.Events.EntryCommentVoteEvent;
+﻿using Common;
+using Common.Events.EntryCommentVoteEvent;
 using Common.Events.EntryVoteEvent;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -7,12 +8,7 @@ namespace VoteWorkerService.Services
 {
     public class VoteService
     {
-        private readonly string connectionString;
-
-        public VoteService(string connectionString)
-        {
-            this.connectionString = connectionString;
-        }
+        private readonly string connectionString = Configuration.SqlServerConnectionString;
 
         public async Task CreateEntryVote(CreateEntryVoteEvent createEntryVoteEvent)
         {

@@ -1,4 +1,5 @@
-﻿using Common.Events.EntryCommentFavoriteEvent;
+﻿using Common;
+using Common.Events.EntryCommentFavoriteEvent;
 using Common.Events.EntryFavoriteEvent;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -7,12 +8,7 @@ namespace FavoriteWorkerService.Services
 {
     public class FavoriteService
     {
-        private readonly string connectionString;
-
-        public FavoriteService(string connectionString)
-        {
-            this.connectionString = connectionString;
-        }
+        private readonly string connectionString = Configuration.SqlServerConnectionString;
 
         public async Task CreateEntryFavorite(CreateEntryFavoriteEvent createEntryFavoriteEvent)
         {

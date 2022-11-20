@@ -90,6 +90,7 @@ namespace WebApp.Infrastructure.Services
             syncLocalStorageService.RemoveItem(LocalStorageExtension.TokenName);
             syncLocalStorageService.RemoveItem(LocalStorageExtension.UserId);
             syncLocalStorageService.RemoveItem(LocalStorageExtension.UserName);
+            syncLocalStorageService.RemoveItem(LocalStorageExtension.Name);
 
             ((AuthStateProvider)authenticationStateProvider).NotifyUserLogout();
 

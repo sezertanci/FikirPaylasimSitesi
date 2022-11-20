@@ -9,17 +9,15 @@ namespace VoteWorkerService
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly IConfiguration configuration;
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration)
+        public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            this.configuration = configuration;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var voteService = new VoteService(configuration["SqlServerConnectionString"]);
+            var voteService = new VoteService();
 
             var entryVoteExchangeName = CommonConstants.EntryVoteExchangeName;
             var createEntryVoteQueueName = CommonConstants.CreateEntryVoteQueueName;
