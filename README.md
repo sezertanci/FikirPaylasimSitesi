@@ -40,3 +40,38 @@ Yani Src/Api/WebApi/WebApi/Properties/launchSettings.json dosyasında port bilgi
 - Salih Cantekin / TechBuddy https://www.youtube.com/playlist?list=PLRp4oRsit1bw04O3i6Q3Bg0CDbMkyR9aT
 - Gençay Yıldız https://www.youtube.com/c/Gen%C3%A7ayY%C4%B1ld%C4%B1z
 - Engin Demiroğ https://www.youtube.com/playlist?list=PLqG356ExoxZVSCbdN3SrvAAEE5pJK1cEn
+
+## Ekran Görüntüleri
+
+
+**Register** <br/>
+<img src="Src/ScreenShots/Register.PNG" width="800" height="400" alt="Screenshot"/> 
+
+**Login** <br/>
+<img src="Src/ScreenShots/login.PNG" width="800" height="400" alt="Screenshot"/> 
+
+**Ana Ekran** <br/>
+<img src="Src/ScreenShots/MainPage.PNG" width="800" height="400" alt="Screenshot"/>
+
+**Entry Girişi** <br/>
+<img src="Src/ScreenShots/CreateEntry.PNG" width="800" height="400" alt="Screenshot"/> 
+
+**Entry Detayı** <br/>
+<img src="Src/ScreenShots/Entry.PNG" width="800" height="400" alt="Screenshot"/>
+
+**Entry'lerim** <br/>
+<img src="Src/ScreenShots/MyEntries.PNG" width="800" height="400" alt="Screenshot"/>
+
+**Yorumlarım** <br/>
+<img src="Src/ScreenShots/MyComments.PNG" width="800" height="400" alt="Screenshot"/>
+
+**Favori Yorumlarım ve Menü** <br/>
+<img src="Src/ScreenShots/MyFavoriteComments.PNG" width="800" height="400" alt="Screenshot"/>
+
+**Entry Etiketleri** <br/>
+<img src="Src/ScreenShots/EntryTags.PNG" width="800" height="400" alt="Screenshot"/>
+
+**Profilim** <br/>
+<img src="Src/ScreenShots/MyProfile3.PNG" width="800" height="400" alt="Screenshot"/>
+<img src="Src/ScreenShots/MyProfile1.PNG" width="800" height="400" alt="Screenshot"/>
+<img src="Src/ScreenShots/MyProfile2.PNG" width="800" height="400" alt="Screenshot"/>
